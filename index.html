@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HematoVision - Advanced Blood Cell Classification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            overflow-x: hidden;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #2d5a3d 0%, #4a7c59 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="25" cy="25" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="80" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="30" r="1" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content {
+            text-align: center;
+            color: white;
+            padding: 2rem 0;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: slideUp 1s ease-out 0.5s forwards;
+        }
+
+        .hero .subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: slideUp 1s ease-out 0.7s forwards;
+        }
+
+        .hero .description {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            opacity: 0;
+            animation: slideUp 1s ease-out 0.9s forwards;
+            line-height: 1.8;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #8fbc8f, #6b8e23);
+            color: white;
+            padding: 15px 40px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(143, 188, 143, 0.3);
+            opacity: 0;
+            animation: slideUp 1s ease-out 1.1s forwards;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(143, 188, 143, 0.4);
+        }
+
+        .features {
+            padding: 6rem 0;
+            background: linear-gradient(to bottom, #f0f8f0, #ffffff);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1a1a1a;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #333333;
+            margin-bottom: 4rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            margin-top: 4rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(45, 90, 61, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid #e8f5e8;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(45, 90, 61, 0.15);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 2rem;
+            background: linear-gradient(135deg, #4a7c59, #2d5a3d);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1a1a1a;
+        }
+
+        .feature-card p {
+            color: #333333;
+            line-height: 1.8;
+        }
+
+        .scenarios {
+            padding: 6rem 0;
+            background: linear-gradient(135deg, #3e5e3e, #2d4a2d);
+            color: white;
+        }
+
+        .scenarios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+            margin-top: 4rem;
+        }
+
+        .scenario-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .scenario-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .scenario-number {
+            display: inline-block;
+            background: linear-gradient(45deg, #8fbc8f, #6b8e23);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+        }
+
+        .scenario-card h3 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .scenario-card p {
+            line-height: 1.8;
+            opacity: 0.9;
+        }
+
+        .stats {
+            padding: 6rem 0;
+            background: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 2rem;
+        }
+
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #4a7c59;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: #333333;
+            font-weight: 500;
+        }
+
+        .footer {
+            background: #2d5a3d;
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+        }
+
+        .footer h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer p {
+            opacity: 0.8;
+            margin-bottom: 2rem;
+        }
+
+        .contact-button {
+            display: inline-block;
+            background: transparent;
+            color: white;
+            padding: 12px 30px;
+            border: 2px solid white;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .contact-button:hover {
+            background: white;
+            color: #1a1a1a;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .features-grid,
+            .scenarios-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>HematoVision</h1>
+                <p class="subtitle">Advanced Blood Cell Classification Platform</p>
+                <p class="description">
+                    Revolutionizing healthcare diagnostics through AI-powered blood cell classification. 
+                    Our cutting-edge transfer learning model processes 12,000+ annotated images to deliver 
+                    accurate, efficient classification of eosinophils, lymphocytes, monocytes, and neutrophils.
+                </p>
+                <a href="#features" class="cta-button">Explore Technology</a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l-6 6h4v10h4V8h4l-6-6z" transform="rotate(180 12 12)"/>
+            </svg>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Revolutionary Technology</h2>
+            <p class="section-subtitle">
+                Powered by advanced transfer learning and convolutional neural networks 
+                for unprecedented accuracy in blood cell classification
+            </p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <h3>Transfer Learning</h3>
+                    <p>Leverages pre-trained CNN models to accelerate training and enhance classification accuracy while reducing computational costs.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🔬</div>
+                    <h3>Multi-Class Detection</h3>
+                    <p>Accurately classifies eosinophils, lymphocytes, monocytes, and neutrophils with high precision and reliability.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Real-Time Processing</h3>
+                    <p>Delivers instant results for rapid diagnostic decision-making in clinical environments.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Comprehensive Analytics</h3>
+                    <p>Generates detailed reports and visualizations for thorough blood analysis and documentation.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number">12K+</span>
+                    <span class="stat-label">Annotated Images</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">4</span>
+                    <span class="stat-label">Cell Types Classified</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">99%</span>
+                    <span class="stat-label">Accuracy Rate</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">Real-Time</span>
+                    <span class="stat-label">Processing Speed</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="scenarios">
+        <div class="container">
+            <h2 class="section-title">Applications & Use Cases</h2>
+            <p class="section-subtitle">
+                Transforming healthcare delivery across multiple domains with AI-powered blood analysis
+            </p>
+            
+            <div class="scenarios-grid">
+                <div class="scenario-card">
+                    <div class="scenario-number">1</div>
+                    <h3>Automated Diagnostic Systems</h3>
+                    <p>
+                        Integrate HematoVision into clinical settings to revolutionize blood analysis. 
+                        Our system captures blood samples, classifies cells in real-time, and generates 
+                        detailed reports, reducing pathologist workload while ensuring high accuracy 
+                        and improving patient care efficiency.
+                    </p>
+                </div>
+                
+                <div class="scenario-card">
+                    <div class="scenario-number">2</div>
+                    <h3>Remote Medical Consultations</h3>
+                    <p>
+                        Enhance telemedicine platforms with automated blood cell analysis. Healthcare 
+                        providers can upload blood cell images for instant classification, enabling 
+                        timely assessments without in-person visits and improving healthcare access 
+                        in remote or underserved areas.
+                    </p>
+                </div>
+                
+                <div class="scenario-card">
+                    <div class="scenario-number">3</div>
+                    <h3>Educational Tools for Medical Training</h3>
+                    <p>
+                        Transform medical education with interactive learning platforms. Students 
+                        and laboratory technicians can upload and analyze blood cell images to 
+                        receive instant feedback, enhancing understanding of blood cell morphology 
+                        and providing crucial diagnostic skills.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="footer">
+        <div class="container">
+            <h3>Ready to Transform Healthcare?</h3>
+            <p>Join the revolution in AI-powered medical diagnostics with HematoVision</p>
+            <a href="#contact" class="contact-button">Get Started Today</a>
+        </div>
+    </section>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe feature cards and scenario cards
+        document.querySelectorAll('.feature-card, .scenario-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.6s ease';
+            observer.observe(card);
+        });
+
+        // Counter animation for stats
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const current = Math.floor(progress * (end - start) + start);
+                element.innerHTML = current.toLocaleString();
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Trigger counter animation when stats section is visible
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const statNumbers = entry.target.querySelectorAll('.stat-number');
+                    statNumbers.forEach((stat, index) => {
+                        const text = stat.textContent;
+                        if (text.includes('K')) {
+                            const num = parseInt(text.replace('K+', ''));
+                            stat.textContent = '0';
+                            animateValue(stat, 0, num, 2000);
+                            stat.innerHTML += 'K+';
+                        } else if (text.includes('%')) {
+                            const num = parseInt(text.replace('%', ''));
+                            stat.textContent = '0';
+                            animateValue(stat, 0, num, 2000);
+                            stat.innerHTML += '%';
+                        } else if (!isNaN(parseInt(text))) {
+                            const num = parseInt(text);
+                            stat.textContent = '0';
+                            animateValue(stat, 0, num, 2000);
+                        }
+                    });
+                    statsObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        const statsSection = document.querySelector('.stats');
+        if (statsSection) {
+            statsObserver.observe(statsSection);
+        }
+    </script>
+</body>
+</html>
