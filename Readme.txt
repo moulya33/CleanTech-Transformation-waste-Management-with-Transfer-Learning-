@@ -1,21 +1,11 @@
-EcoClassify - Waste Classification System
-========================================
+## 🔥 Pretrained Model (.h5)
 
-Project Structure:
-- app.py: Flask backend server
-- templates/: HTML templates
-- static/: Static files (CSS, JS, images)
-- healthy_vs_rotten.h5: Trained ML model
+The trained model file is too large to store in this GitHub repository.
 
-Setup:
-1. pip install flask tensorflow pillow numpy
-2. python app.py
-3. Open http://localhost:5000
+📥 [Click here to download the .h5 model](https://drive.google.com/uc?export=download&id=1-L8Ym3ynM_uYZdrL1alZyLjkE8vVsprM)
 
-Features:
-- AI-powered waste classification
-- Real-time image processing
-- Bootstrap responsive design
-- Animated backgrounds
+Once downloaded, place the `.h5` file in your project folder and load it using:
 
-Contact: mohammadmuzu445@gmail.com
+```python
+from keras.models import load_model
+model = load_model("model.h5")
